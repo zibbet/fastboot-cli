@@ -36,7 +36,17 @@ var notifier = {
 var server = new FastBootAppServer({
   distPath: distPath,
   notifier: notifier,
-  gzip: true
+  gzip: true,
+
+  beforeMiddleware(app) {
+    app.use((request, response, next) => {
+      if (request.headers['x-forwarded-proto'] === 'https') {
+        return next();
+      } else {
+        return response.redirect(301, `https://${request.hostname}${request.url}`);
+      }
+    });
+  }
 });
 
 console.log('Booting Ember app...');
